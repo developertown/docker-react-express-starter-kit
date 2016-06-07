@@ -1,0 +1,45 @@
+version: "2"
+services:
+  db:
+    image: postgres
+    networks:
+      - back_tier
+    volumes:
+      - data:/var/lib/postgresql/data
+  webpack:
+    build: .
+    command: ./bin/webpack-dev
+    volumes:
+      - .:/src/app
+    environment:
+      - VIRTUAL_HOST=sample-replace.docker
+    ports:
+      - "8080:8080"
+    networks:
+      - front_tier
+  server:
+    build: .
+    command: ./bin/start-web
+    volumes:
+      - .:/src/app
+    environment:
+      - VIRTUAL_HOST=sample-replace.docker
+      - APP_DB_HOST=db
+      - APP_DB_USER=postgres
+      - APP_DB_PORT=5432
+      - APP_HOST=http://sample-replace.docker:3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    networks:
+      - front_tier
+      - back_tier
+volumes:
+  data:
+    driver: local
+networks:
+  front_tier:
+    driver: bridge
+  back_tier:
+    driver: bridge
