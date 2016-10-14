@@ -1,11 +1,13 @@
-FROM node:4
+FROM node:6.3
 
-RUN useradd -u 777 -r -m -U app
 RUN mkdir -p /src/app
 WORKDIR /src/app
-COPY . /src/app
 
-RUN chown -R app:app .
-USER app
+RUN npm install -g node-inspector
+
+COPY package.json /src/app/
+RUN npm install
+
+COPY . /src/app
 
 CMD ["npm", "start"]
